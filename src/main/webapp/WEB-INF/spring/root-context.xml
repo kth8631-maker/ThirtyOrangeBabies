@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	
+	<!-- Spring이 생명주기를 관리하는 객체 == Bean -->
+	<!-- 
+		* root-context.xml
+		서버가 구동되면서 세팅되어야하는 (Bean으로 등록)내용들을 작성(DB접속, 트랜잭션처리, 외부모듈연결...)
+		서버 구동과 동시에 web.xml파일을 거쳐서 로딩되는 문서 == preloading
+	-->
+	<bean class="org.apache.commons.dbcp.BasicDataSource"
+		  id="dataSource" destroy-method="close">
+		  <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		  <property name="url" value="jdbc:oracle:thin:@115.90.212.20:10000:xe" />
+		  <property name="username" value="AYS14" />
+		  <property name="password" value="AYS141234" />
+	</bean>
+	<!-- 
+		DataSource dataSource = new BasicDataSource();
+		dataSource.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+		dataSource.setUrl("jdbc:oracle:thin:@115.90.212.20:10000:xe");
+		dataSource.setUsername("LEE");
+		dataSource.setPassword("oracle");
+	-->
+	
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory" >
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean class="org.mybatis.spring.SqlSessionTemplate" id="sqlSession">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+	<!-- 
+		SqlSession sqlSession = new SqlSessionTemplate(sqlSessionFactory);
+	-->
+	
+	<mybatis-spring:scan base-package="com.kh.spring.member.model.dao, com.kh.spring.board.model.mapper" />
+	
+	<!-- 파일 업로드 관련 빈 등록 -->
+
+	<bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+		  id="multipartResolver">
+		  <property name="maxUploadSize" value="100000000"/>
+		  <property name="maxInMemorySize" value="100000000"/>
+	</bean>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+</beans>

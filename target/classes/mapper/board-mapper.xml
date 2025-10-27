@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kh.spring.board.model.mapper.BoardMapper">
+
+	<sql id="boardColumn">
+		SELECT
+			   BOARD_NO boardNo
+			 , BOARD_TITLE boardTitle
+			 , BOARD_WRITER boardWriter
+			 , COUNT
+			 , TO_CHAR(CREATE_DATE, 'YYYY-MM-DD') as createDate
+			 , CHANGE_NAME changeName
+	</sql>
+	
+	<select id="selectTotalCount"
+			resultType="_int">
+		SELECT
+			   COUNT(*)
+		  FROM
+		  	   BOARD
+		 WHERE
+		 	   STATUS = 'Y'
+	</select>
+	
+	<select id="findAll"
+			resultType="com.kh.spring.board.model.dto.BoardDTO">
+		<include refid="boardColumn"/>
+	      FROM
+	      	   BOARD
+	     WHERE
+	       	   STATUS = 'Y'
+	     ORDER
+	        BY
+	           BOARD_NO DESC
+	
+	</select>
+
+	<insert id="save"
+			parameterType="com.kh.spring.board.model.dto.BoardDTO">
+		INSERT
+		  INTO
+		  	   BOARD
+		VALUES
+			   (
+			   SEQ_BNO.NEXTVAL
+			 , #{boardTitle}
+			 , #{boardWriter}
+			 , #{boardContent}
+			 , #{originName}
+			 , #{changeName}
+			 , 0
+			 , DEFAULT
+			 , DEFAULT
+			   )
+	</insert>
+	
+	<update id="increaseCount"
+			parameterType="long">
+		UPDATE
+			   BOARD
+		   SET
+		   	   COUNT = COUNT + 1
+		 WHERE
+			   BOARD_NO = #{boardNo}
+		   AND
+		   	   STATUS = 'Y'	
+	</update>
+	
+	<select id="findByBoardNo"
+			parameterType="long"
+			resultType="com.kh.spring.board.model.dto.BoardDTO">
+		<include refid="boardColumn"/>
+			, BOARD_CONTENT boardConetent
+			, ORIGIN_NAME originName
+		 FROM
+		 	  BOARD
+		WHERE 
+			  BOARD_NO = #{boardNo}
+		  AND
+		  	  STATUS = 'Y'
+			
+	</select>
+	
+	<resultMap id="boardResultSet" type="com.kh.spring.board.model.dto.BoardDTO">
+		<id column="boardNo" property="boardNo"/>
+		<result column="boardTitle" property="boardTitle" />
+		<result column="boardWriter" property="boardWriter" />
+		<result column="boardContent" property="boardContent" />
+		<result column="boardCreateDate" property="createDate" />
+		<result column="originName" property="originName" />
+		<result column="changeName" property="changeName" />
+		<collection property="replies" ofType="com.kh.spring.board.model.dto.ReplyDTO">
+			<id column="replyNo" property="replyContent"/>
+			<result column="replyContent" property="replyContent" />
+			<result column="replyWriter" property="replyWriter" />
+			<result column="replyCreateDate" property="createDate" />
+		</collection>
+	</resultMap>
+	
+	<select id="findBoardAndReply" parameterType="long" resultMap="boardResultSet">
+	
+		SELECT
+		       BOARD_NO boardNo
+		     , BOARD_TITLE boardTitle
+		     , BOARD_CONTENT boardContent
+		     , BOARD_WRITER boardWriter
+		     , BOARD.CREATE_DATE boardCreateDate
+		     , ORIGIN_NAME originName
+		     , CHANGE_NAME changeName
+		     , REPLY_NO replyNo
+		     , REPLY_WRITER replyWriter
+		     , REPLY_CONTENT replyContent
+		     , REPLY.CREATE_DATE replyCreateDate
+		  FROM
+		       BOARD
+		  LEFT
+		  JOIN
+		       REPLY ON(BOARD_NO = REF_BNO)
+		 WHERE
+		       BOARD_NO= #{boardNo}
+	</select>
+	
+	<insert id="insertReply"
+	        parameterType="com.kh.spring.board.model.dto.ReplyDTO">
+	    INSERT
+	      INTO
+	           REPLY
+	    VALUES
+	           (
+	           SEQ_RNO.NEXTVAL
+	         , #{replyContent}
+	         , #{refBno}
+	         , #{replyWriter}
+	         , SYSDATE
+	         , 'Y'
+	           )    
+		
+	</insert>
+</mapper>
