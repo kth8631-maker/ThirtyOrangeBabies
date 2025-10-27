@@ -10,6 +10,8 @@
 
 	<jsp:include page="include/header.jsp" />
 	
+	<p> 수정 한 번 해봤어요</p>
+	
 	<div style="width: 1200px; height: 600px;">
 	
 	
